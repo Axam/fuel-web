@@ -24,6 +24,8 @@ requirejs.config({
         'jquery-timeout': 'js/libs/jquery.timeout',
         'jquery-ui': 'js/libs/jquery-ui-1.10.2.custom',
         'jquery-autoNumeric': 'js/libs/autoNumeric',
+        'jquery-validation': 'js/libs/jquery.validationEngine',
+        'jquery-validation-en': 'js/libs/jquery.validationEngine-en',
         i18next: 'js/libs/i18next-1.7.1',
         utils: 'js/utils',
         underscore: 'js/libs/lodash',
@@ -77,12 +79,18 @@ requirejs.config({
         },
         'jquery-autoNumeric': {
             deps: ['jquery']
+        },
+        'jquery-validation': {
+            deps: ['jquery', 'jquery-validation-en']
+        },
+        'jquery-validation-en': {
+            deps: ['jquery']
         }
     }
 });
 
 require([
-    'jquery', 'underscore', 'backbone', 'stickit', 'deepModel', 'coccyx', 'i18next', 'bootstrap', 'retina', 'jquery-checkbox', 'jquery-timeout', 'jquery-ui', 'jquery-autoNumeric',
+    'jquery', 'underscore', 'backbone', 'stickit', 'deepModel', 'coccyx', 'i18next', 'bootstrap', 'retina', 'jquery-checkbox', 'jquery-timeout', 'jquery-ui', 'jquery-autoNumeric', 'jquery-validation',
     'app'
 ], function() {
     require('app').initialize();

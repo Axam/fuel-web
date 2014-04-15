@@ -520,6 +520,8 @@ class NetworkCheck(object):
     def check_configuration(self):
         if self.net_provider == 'neutron':
             self.neutron_check_config()
+        elif self.net_provider == 'contrail':
+            pass
         else:
             pub_cidr = self.check_public_floating_ranges_intersection()
             self.check_net_addr_spaces_intersection(pub_cidr)

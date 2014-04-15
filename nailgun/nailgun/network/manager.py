@@ -45,6 +45,7 @@ from nailgun.logger import logger
 
 
 class NetworkManager(object):
+    NETWORK = 'nova_network'
 
     def update_range_mask_from_cidr(self, network_group, cidr):
         """Update network ranges for cidr
@@ -138,9 +139,9 @@ class NetworkManager(object):
         """
         cluster_db = db().query(Cluster).get(cluster_id)
         networks_metadata = \
-            cluster_db.release.networks_metadata["nova_network"]
+            cluster_db.release.networks_metadata[self.NETWORK]
 
-        for network in networks_metadata["networks"]:
+        for network in networks_metadata['networks']:
             new_ip_range = IPAddrRange(
                 first=network["ip_range"][0],
                 last=network["ip_range"][1]
@@ -565,6 +566,8 @@ class NetworkManager(object):
             self.assign_networks_to_main_interface(node)
         elif node.cluster.net_provider == 'neutron':
             self.assign_networks_neutron(node)
+        elif node.cluster.net_provider == 'contrail':
+            self.assign_networks_contrail(node)
 
     def assign_networks_to_main_interface(self, node):
         self.clear_assigned_networks(node)
@@ -597,6 +600,23 @@ class NetworkManager(object):
         [ifaces[0].assigned_networks.append(ng)
          for ng in self.get_cluster_networkgroups_by_node(node)
          if ng.name != 'private']
+
+        node.admin_interface.assigned_networks.append(
+            self.get_admin_network_group()
+        )
+
+        db().commit()
+
+    def assign_networks_contrail(self, node):
+        self.clear_assigned_networks(node)
+        # exclude admin interface if it is not the only interface
+        ifaces = [iface for iface in node.interfaces
+                  if iface.id != node.admin_interface.id]
+        if not ifaces:
+            ifaces = [node.admin_interface]
+        # assign all remaining networks
+        for ng in self.get_cluster_networkgroups_by_node(node):
+            ifaces[0].assigned_networks.append(ng)
 
         node.admin_interface.assigned_networks.append(
             self.get_admin_network_group()

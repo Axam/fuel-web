@@ -39,6 +39,7 @@ from nailgun.db import db
 from nailgun.logger import logger
 from nailgun.network.manager import NetworkManager
 from nailgun.network.neutron import NeutronManager
+from nailgun.network.contrail import ContrailManager
 from nailgun.network.topology import TopoChecker
 from nailgun import notifier
 
@@ -357,6 +358,8 @@ class NodeCollectionHandler(JSONHandler):
                 network_manager = NetworkManager()
             elif cluster and cluster.net_provider == "neutron":
                 network_manager = NeutronManager()
+            elif cluster and cluster.net_provider == "contrail":
+                network_manager = ContrailManager()
             # essential rollback - we can't avoid it now
             elif not cluster:
                 network_manager = NetworkManager()

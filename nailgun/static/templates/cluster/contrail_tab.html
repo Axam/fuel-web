@@ -1,0 +1,53 @@
+<div class="openstack-settings wrapper <%= locked ? 'changes-locked' : '' %>">
+
+  <h3 data-i18n="cluster_page.contrail_settings_tab.title">SDN Contrail Settings</h3>
+
+  <% var settings = cluster.get('contrail').get('editable'); %>
+  <% var disabled = locked ? 'disabled' : '' %>
+  <% if (cluster.get('contrail').deferred.state() != 'pending') { %>
+  <div class="settings">
+      <label class="parameter-box clearfix">
+        <div class="openstack-sub-title parameter-name">As number</div>
+        <div class="parameter-control">
+          <input type="text" name="as_number" value="<%- settings['as_number'] %>" <%= disabled %>/>
+        </div>
+        <div class="parameter-description description"></div>
+      </label>
+      <legend class="openstack-sub-title">WAN gateways</legend>
+      <% _.each(settings['wan_gateways'], function(wan, index) { %>
+        <form class="form-inline">
+          <input type="text" class="input" value="<%- wan['hostname'] %>" readonly>
+          <input type="text" class="input" value="<%- wan['ip'] %>" readonly>
+          <button class="btn btn-delete btn-danger btn-delete-<%- index %>" <%= disabled %> >Delete</button>
+        </form>
+      <% }) %>
+<form id="add-wan" class="form-inline">
+  <input type="text" class="input validate[required,custom[onlyLetterNumber]]" id="wan-hostname" placeholder="Hostname" <%= disabled %> >
+  <input type="text" class="input  validate[required,custom[ipv4]]" id="wan-ip" name="wan-ip" placeholder="IP address" <%= disabled %> >
+  <button class="btn btn-add" <%= disabled %>>Add</button>
+</form>
+  
+  </div>
+  <% } else { %>
+    <div class="row row-fluid">
+      <div class="span4"></div>
+      <div class="span4">
+        <div class="progress progress-striped progress-success active">
+          <div class="bar" style="width: 100%"></div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- page-control box -->
+  <div class="row">
+    <div class="page-control-box">
+      <div class="page-control-button-placeholder">
+        <button data-i18n="cluster_page.settings_tab.bt_load_defaults" class="btn btn-load-defaults"<%= locked || cluster.get('contrail').deferred.state() == 'pending' ? ' disabled' : '' %>>Load Defaults</button>
+        <button data-i18n="cluster_page.settings_tab.bt_cancel_settings" data-i18n="cluster_page.settings_tab.bt_cancel_changes" class="btn btn-revert-changes" disabled>Cancel Changes</button>
+        <button class="btn btn-success btn-apply-changes" disabled>Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+</div>

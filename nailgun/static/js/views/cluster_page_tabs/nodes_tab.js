@@ -403,6 +403,24 @@ function(utils, models, commonViews, dialogViews, nodesManagementPanelTemplate, 
                     this.$('.role-conflict.controller').text('Only one controller can be assigned in a multi-node deployment that is not Highly-Available (HA).');
                 }
             }
+            if (this.cluster.get('mode') == 'multinode') {
+                var allocatedController = this.screen.tab.model.get('nodes').filter(function(node) {return !node.get('pending_deletion') && _.contains(_.union(node.get('roles'),node.get('pending_roles')), 'sdn-contrail-controller');})[0];
+                var cantAddController = allocatedController && !_.contains(this.nodeIds, allocatedController.id);
+                var controllerRoleSelected = this.$('input[value=sdn-contrail-controller]').is(':checked') || this.$('input[value=sdn-contrail-controller]').prop('indeterminate');
+                var controllerNodeChosen = controllerRoleSelected && this.nodeIds.length;
+                this.screen.$('.select-all input:not(:checked)').prop('disabled', controllerRoleSelected).parent().toggleClass('disabled', controllerRoleSelected);
+                this.screen.$('.node-box:not(.node-offline):not(.error):not(.node-delete) input:not(:checked)').prop('disabled', controllerNodeChosen);
+                // if there are no allocated controllers, check Select All tumblers for its' disabled state (offline, error nodes)
+                if (!controllerNodeChosen && this.screen.nodeList) {
+                    _.invoke(this.screen.nodeList.subViews, 'calculateSelectAllDisabledState', controllerRoleSelected, this);
+                }
+                if (this.nodeIds.length > 1 || cantAddController) {
+                    this.$('input[value=sdn-contrail-controller]').prop('disabled', true);
+                }
+                if (this.nodeIds.length > 1 || controllerNodeChosen || cantAddController) {
+                    this.$('.role-conflict.sdn-contrail-controller').text('Only one SDN Contrail controller can be assigned in a multi-node deployment that is not Highly-Available (HA).');
+                }
+            }
         },
         getListOfUncompatibleRoles: function(roles) {
             var forbiddenRoles = [];
@@ -421,9 +439,17 @@ function(utils, models, commonViews, dialogViews, nodesManagementPanelTemplate, 
             this.roles = this.cluster.availableRoles();
         },
         render: function() {
+            ///// refactor
+            var net_provider = this.cluster.get('net_provider');
+            if (net_provider !== 'contrail') {
+                this.roles = this.roles.filter(function(role) {
+                            return role.search('sdn') == -1;
+                        })
+            }
+            /////
             this.$el.html(this.template({
                 roles: this.roles,
-                rolesData: this.cluster.get('release').get('roles_metadata')
+                rolesData: this.cluster.get('release').get('roles_metadata'),
             }));
             this.defineNodes();
             _.each(this.$('input'), this.calculateInputState, this);

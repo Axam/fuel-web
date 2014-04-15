@@ -47,6 +47,7 @@
   <%
     var warnings = {
      'controller': 'Environment should have ' + size + ' controller node' + (size == 1 ? '' : 's') + '.',
+     'sdn-contrail-controller': 'Environment should have ' + sdn_contrail_size + ' SDN Contrail controllers node' + (sdn_contrail_size == 1 ? '' : 's') + '.',
       'compute': 'Compute nodes are recommended for deployment.'
     };
     var warning = null, canDeploy = true;
@@ -59,6 +60,9 @@
     if (cluster.get('nodes').nodesAfterDeploymentWithRole('controller') < size) {
       canDeploy = false;
       warning = 'controller';
+    } else if (cluster.get('nodes').nodesAfterDeploymentWithRole('sdn-contrail-controller') < sdn_contrail_size) {
+      canDeploy = false;
+      warning = 'sdn-contrail-controller';
     } else if (!cluster.get('nodes').nodesAfterDeploymentWithRole('compute')) {
       warning = 'compute';
     }

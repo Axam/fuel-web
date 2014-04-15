@@ -42,6 +42,10 @@ from nailgun.api.handlers.network_configuration \
     import NovaNetworkConfigurationHandler
 from nailgun.api.handlers.network_configuration \
     import NovaNetworkConfigurationVerifyHandler
+from nailgun.api.handlers.network_configuration \
+    import ContrailNetworkConfigurationHandler
+from nailgun.api.handlers.network_configuration \
+    import ContrailNetworkConfigurationVerifyHandler
 
 from nailgun.api.handlers.node import NodeCollectionHandler
 from nailgun.api.handlers.node import NodeHandler
@@ -75,6 +79,9 @@ from nailgun.api.handlers.tasks import TaskHandler
 
 from nailgun.api.handlers.version import VersionHandler
 
+from nailgun.api.handlers.contrail import ContrailAttributesHandler
+from nailgun.api.handlers.contrail import ContrailAttributesDefaultsHandler
+
 
 urls = (
     r'/releases/?$',
@@ -90,8 +97,12 @@ urls = (
     ClusterChangesHandler,
     r'/clusters/(?P<cluster_id>\d+)/attributes/?$',
     ClusterAttributesHandler,
+    r'/clusters/(?P<cluster_id>\d+)/contrail/?$',
+    ContrailAttributesHandler,
     r'/clusters/(?P<cluster_id>\d+)/attributes/defaults/?$',
     ClusterAttributesDefaultsHandler,
+    r'/clusters/(?P<cluster_id>\d+)/contrail/defaults/?$',
+    ContrailAttributesDefaultsHandler,
     # nova network-related
     r'/clusters/(?P<cluster_id>\d+)/network_configuration/nova_network/?$',
     NovaNetworkConfigurationHandler,
@@ -104,6 +115,12 @@ urls = (
     r'/clusters/(?P<cluster_id>\d+)/network_configuration/'
     'neutron/verify/?$',
     NeutronNetworkConfigurationVerifyHandler,
+    # contrail-related
+    r'/clusters/(?P<cluster_id>\d+)/network_configuration/contrail/?$',
+    ContrailNetworkConfigurationHandler,
+    r'/clusters/(?P<cluster_id>\d+)/network_configuration/'
+    'contrail/verify/?$',
+    ContrailNetworkConfigurationVerifyHandler,
 
     r'/clusters/(?P<cluster_id>\d+)/orchestrator/deployment/?$',
     DeploymentInfo,

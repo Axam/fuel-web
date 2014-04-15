@@ -22,6 +22,8 @@ from sqlalchemy import String
 from sqlalchemy import Unicode
 from sqlalchemy.orm import relationship, backref
 
+import netaddr
+
 from nailgun.api.models.base import Base
 from nailgun.db import db
 
@@ -147,7 +149,9 @@ class NetworkConfiguration(object):
 
                 for key, value in ng.iteritems():
                     if key == "ip_ranges":
-                        cls._set_ip_ranges(ng['id'], value)
+                        net = list(netaddr.IPNetwork(ng['cidr']))
+                        ranges = [str(net[2]), str(net[-2])]
+                        cls._set_ip_ranges(ng['id'], [ranges])
                     else:
                         if key == 'cidr' and \
                                 not ng['name'] in ('public', 'floating'):

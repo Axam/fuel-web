@@ -226,3 +226,16 @@ class NeutronNetworkConfigurationHandler(JSONHandler):
 class NeutronNetworkConfigurationVerifyHandler(
         NovaNetworkConfigurationVerifyHandler):
     validator = NeutronNetworkConfigurationValidator
+
+
+class ContrailNetworkConfigurationHandler(NovaNetworkConfigurationHandler):
+    """Neutron Network configuration handler
+    """
+
+    validator = NovaNetworkConfigurationValidator
+    serializer = NovaNetworkConfigurationSerializer
+
+
+class ContrailNetworkConfigurationVerifyHandler(
+        NovaNetworkConfigurationVerifyHandler):
+    pass

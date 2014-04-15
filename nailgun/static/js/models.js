@@ -258,6 +258,14 @@ define(['utils', 'deepModel'], function(utils) {
         preferredOrder: ['access', 'additional_components', 'common', 'glance', 'syslog', 'storage']
     });
 
+    models.ContrailSettings = Backbone.DeepModel.extend({
+        constructorName: 'ContrailSettings',
+        urlRoot: '/api/clusters/',
+        isNew: function() {
+            return false;
+        },
+    });
+
     models.Disk = Backbone.Model.extend({
         constructorName: 'Disk',
         urlRoot: '/api/nodes/',
@@ -396,6 +404,15 @@ define(['utils', 'deepModel'], function(utils) {
                     'storage': ['cidr', 'vlan_start'],
                     'private': [],
                     'fuelweb_admin': []
+                };
+            }
+            if (provider == 'contrail') {
+                attributes = {
+                    'public': ['cidr', 'vlan_start', 'gateway'],
+                    'management': ['cidr', 'vlan_start'],
+                    'storage': ['cidr', 'vlan_start'],
+                    'fuelweb_admin': [],
+                    'private' : ['cidr', 'vlan_start']
                 };
             }
             return attributes[this.get('name')] || ['vlan_start'];

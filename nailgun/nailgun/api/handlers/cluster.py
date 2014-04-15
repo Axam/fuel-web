@@ -29,6 +29,7 @@ from nailgun.api.models import Attributes
 from nailgun.api.models import Cluster
 from nailgun.api.models import Node
 from nailgun.api.models import Release
+from nailgun.api.models import ContrailAttributes
 from nailgun.api.serializers.network_configuration \
     import NeutronNetworkConfigurationSerializer
 from nailgun.api.serializers.network_configuration \
@@ -40,6 +41,7 @@ from nailgun.errors import errors
 from nailgun.logger import logger
 from nailgun.network.manager import NetworkManager
 from nailgun.network.neutron import NeutronManager
+from nailgun.network.contrail import ContrailManager
 from nailgun.task.manager import ClusterDeletionManager
 from nailgun.task.manager import DeploymentTaskManager
 
@@ -196,10 +198,20 @@ class ClusterCollectionHandler(JSONHandler):
         )
         attributes.generate_fields()
 
+        contrail = ContrailAttributes(
+                        editable={'as_number' : 64512,
+                                  'wan_gateways': []},
+                        cluster=cluster
+        )
+        db().add(contrail)
+        db().commit()
+
         if cluster.net_provider == 'nova_network':
             netmanager = NetworkManager()
         elif cluster.net_provider == 'neutron':
             netmanager = NeutronManager()
+        elif cluster.net_provider == 'contrail':
+            netmanager = ContrailManager()
 
         try:
             netmanager.create_network_groups(cluster.id)
@@ -208,6 +220,7 @@ class ClusterCollectionHandler(JSONHandler):
 
             cluster.add_pending_changes("attributes")
             cluster.add_pending_changes("networks")
+            cluster.add_pending_changes("contrail_attributes")
 
             if 'nodes' in data and data['nodes']:
                 nodes = db().query(Node).filter(
@@ -269,6 +282,8 @@ class ClusterChangesHandler(JSONHandler):
             net_serializer = NovaNetworkConfigurationSerializer
         elif cluster.net_provider == 'neutron':
             net_serializer = NeutronNetworkConfigurationSerializer
+        elif cluster.net_provider == 'contrail':
+            net_serializer = NovaNetworkConfigurationSerializer
 
         try:
             network_info = net_serializer.serialize_for_cluster(cluster)

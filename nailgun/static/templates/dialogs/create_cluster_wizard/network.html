@@ -4,11 +4,14 @@
 <form class="form-horizontal" onsubmit="return false">
   <fieldset>
     <div class="control-group">
-      <% var managers = ['nova-network', 'neutron-gre', 'neutron-vlan'] %>
+      <% var managers = ['contrail-gre', 'contrail-udp', 'contrail-vxlan'] %>
       <% var descriptions = {
         'nova-network': 'Nova-Network',
         'neutron-gre': 'Neutron with GRE segmentation',
-        'neutron-vlan': 'Neutron with VLAN segmentation'
+        'neutron-vlan': 'Neutron with VLAN segmentation',
+        'contrail-gre': 'Contrail with MPLS over GRE',
+        'contrail-udp': 'Contrail with MPLS over UDP',
+        'contrail-vxlan': 'Contrail with VXLAN',
       } %>
       <% _.each(managers, function(manager) { %>
         <label class="parameter-box clearfix">
@@ -20,6 +23,7 @@
           </div>
           <div class="parameter-name"><%- descriptions[manager] %></div>
         </label>
+      <% disabled = true %>
       <% }) %>
     </div>
   </fieldset>

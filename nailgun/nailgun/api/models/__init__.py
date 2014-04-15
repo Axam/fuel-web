@@ -51,3 +51,5 @@ from nailgun.api.models.redhat import RedHatAccount
 
 from nailgun.api.models.plugin import Plugin
 
+from nailgun.api.models.contrail import ContrailAttributes
+
