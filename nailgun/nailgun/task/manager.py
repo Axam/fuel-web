@@ -285,6 +285,8 @@ class ApplyChangesTaskManager(TaskManager):
             net_serializer = NovaNetworkConfigurationSerializer
         elif self.cluster.net_provider == 'neutron':
             net_serializer = NeutronNetworkConfigurationSerializer
+        elif self.cluster.net_provider == 'contrail':
+            net_serializer = NovaNetworkConfigurationSerializer
 
         network_info = net_serializer.serialize_for_cluster(self.cluster)
         network_info["networks"] = [

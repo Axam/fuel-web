@@ -44,6 +44,7 @@ from nailgun.logger import logger
 
 
 class NetworkManager(object):
+    NETWORK = 'nova_network'
 
     @classmethod
     def update_range_mask_from_cidr(cls, network_group, cidr):

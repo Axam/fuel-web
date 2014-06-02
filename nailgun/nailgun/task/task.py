@@ -406,6 +406,7 @@ class CheckBeforeDeploymentTask(object):
     def execute(cls, task):
         cls._check_nodes_are_online(task)
         cls._check_controllers_count(task)
+        cls._check_contrail_controllers_count(task)
         cls._check_disks(task)
         cls._check_ceph(task)
         cls._check_volumes(task)
@@ -441,6 +442,23 @@ class CheckBeforeDeploymentTask(object):
         elif cluster_mode == 'ha_compact' and controllers_count < 3:
             raise errors.NotEnoughControllers(
                 "Not enough controllers, %s mode requires at least 3 "
+                "controllers" % (cluster_mode))
+
+    @classmethod
+    def _check_contrail_controllers_count(cls, task):
+        controllers_count = len(filter(
+            lambda node: 'sdn-contrail-controller' in node.all_roles,
+            task.cluster.nodes)
+        )
+        cluster_mode = task.cluster.mode
+
+        if cluster_mode == 'multinode' and controllers_count != 1:
+            raise errors.NotEnoughContrailControllers(
+                "Not SDN Contrail controller, %s mode requires 1 "
+                "controller" % (cluster_mode))
+        elif cluster_mode == 'ha_compact' and controllers_count != 2:
+            raise errors.NotEnoughContrailControllers(
+                "Not enough SDN Contrail controllers, %s mode requires 2 "
                 "controllers" % (cluster_mode))
 
     @classmethod

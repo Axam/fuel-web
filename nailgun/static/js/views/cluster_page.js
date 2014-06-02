@@ -21,6 +21,7 @@ define(
     'views/dialogs',
     'views/cluster_page_tabs/nodes_tab',
     'views/cluster_page_tabs/network_tab',
+    'views/cluster_page_tabs/contrail_tab',
     'views/cluster_page_tabs/settings_tab',
     'views/cluster_page_tabs/logs_tab',
     'views/cluster_page_tabs/actions_tab',
@@ -30,7 +31,7 @@ define(
     'text!templates/cluster/deployment_result.html',
     'text!templates/cluster/deployment_control.html'
 ],
-function(utils, models, commonViews, dialogViews, NodesTab, NetworkTab, SettingsTab, LogsTab, ActionsTab, HealthCheckTab, clusterPageTemplate, clusterCustomizationMessageTemplate, deploymentResultTemplate, deploymentControlTemplate) {
+function(utils, models, commonViews, dialogViews, NodesTab, NetworkTab, ContrailTab, SettingsTab, LogsTab, ActionsTab, HealthCheckTab, clusterPageTemplate, clusterCustomizationMessageTemplate, deploymentResultTemplate, deploymentControlTemplate) {
     'use strict';
     var ClusterPage, ClusterCustomizationMessage, DeploymentResult, DeploymentControl;
 
@@ -42,7 +43,7 @@ function(utils, models, commonViews, dialogViews, NodesTab, NetworkTab, Settings
         title: function() {
             return this.model.get('name');
         },
-        tabs: ['nodes', 'network', 'settings', 'logs', 'healthcheck', 'actions'],
+        tabs: ['nodes', 'network', 'contrail', 'settings', 'logs', 'healthcheck', 'actions'],
         updateInterval: 5000,
         template: _.template(clusterPageTemplate),
         events: {
@@ -210,6 +211,7 @@ function(utils, models, commonViews, dialogViews, NodesTab, NetworkTab, Settings
             var tabs = {
                 'nodes': NodesTab,
                 'network': NetworkTab,
+                'contrail': ContrailTab,
                 'settings': SettingsTab,
                 'actions': ActionsTab,
                 'logs': LogsTab,

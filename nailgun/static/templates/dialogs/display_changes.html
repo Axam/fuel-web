@@ -43,6 +43,7 @@
   <%
     var warnings = {
      'controller': $.t("dialog.display_changes.warnings.controller", {nodeSize: size}),
+     'sdn-contrail-controller': 'Environment should have ' + sdn_contrail_size + ' SDN Contrail controllers node' + (sdn_contrail_size == 1 ? '' : 's') + '.',
      'compute': $.t("dialog.display_changes.warnings.compute")
     };
     var warning = null, canDeploy = true;
@@ -58,6 +59,9 @@
     if (cluster.get('nodes').nodesAfterDeploymentWithRole('controller') < size) {
       canDeploy = false;
       warning = 'controller';
+    } else if (cluster.get('nodes').nodesAfterDeploymentWithRole('sdn-contrail-controller') < sdn_contrail_size) {
+      canDeploy = false;
+      warning = 'sdn-contrail-controller';
     } else if (!cluster.get('nodes').nodesAfterDeploymentWithRole('compute')) {
       warning = 'compute';
     }

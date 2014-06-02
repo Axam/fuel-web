@@ -41,6 +41,7 @@ default_messages = {
     "WrongNodeStatus": "Wrong node status",
     "NodeOffline": "Node is offline",
     "NotEnoughControllers": "Not enough controllers",
+    "NotEnoughContrailControllers": "Not enough SDN Contrail controllers",
     "RedHatSetupError": "Red Hat setup error",
 
     # disk errors

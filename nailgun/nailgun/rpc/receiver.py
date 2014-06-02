@@ -393,6 +393,19 @@ class NailgunReceiver(object):
                 logger.warning(u"Controller node not found in '{0}'".format(
                     task.cluster.name
                 ))
+           if task.cluster.net_provider == 'contrail':
+                sdn_config = db().query(Node).filter_by(
+                    cluster_id=task.cluster_id
+                ).filter(Node.role_list.any(name='sdn-contrail-controller')).first()
+                if sdn_config:
+                    public_net = filter(
+                        lambda n: n['name'] == 'public' and 'ip' in n,
+                        network_manager.get_node_networks(sdn_config.id)
+                    )
+                    if public_net:
+                        webui_ip = public_net[0]['ip'].split('/')[0]
+                        message += '\nSDN web ui url: https://{0}:8143 or via internal network at https://{1}:8143'.format(
+                                                                                webui_ip, sdn_config.ip)
         elif task.cluster.is_ha_mode:
             # determining horizon url in HA mode - it's vip
             # from a public network saved in task cache
@@ -418,6 +431,19 @@ class NailgunReceiver(object):
                         task.cluster.name
                     )
                 )
+            if task.cluster.net_provider == 'contrail':
+                sdn_config = db().query(Node).filter_by(
+                    cluster_id=task.cluster_id
+                ).filter(Node.role_list.any(name='sdn-contrail-controller')).first()
+                if sdn_config:
+                    public_net = filter(
+                        lambda n: n['name'] == 'public' and 'ip' in n,
+                        network_manager.get_node_networks(sdn_config.id)
+                    )
+                    if public_net:
+                        webui_ip = public_net[0]['ip'].split('/')[0]
+                        message += '\nSDN web ui url: https://{0}:8143 or via internal network at https://{1}:8143'.format(
+                                                                                webui_ip, sdn_config.ip)
 
         notifier.notify(
             "done",

@@ -42,7 +42,8 @@ class ClusterChanges(Base):
     POSSIBLE_CHANGES = (
         'networks',
         'attributes',
-        'disks'
+        'disks',
+        'contrail_attributes'
     )
     id = Column(Integer, primary_key=True)
     cluster_id = Column(Integer, ForeignKey('clusters.id'))
@@ -67,9 +68,9 @@ class Cluster(Base):
     NET_MANAGERS = ('FlatDHCPManager', 'VlanManager')
     GROUPING = ('roles', 'hardware', 'both')
     # Neutron-related
-    NET_PROVIDERS = ('nova_network', 'neutron')
+    NET_PROVIDERS = ('nova_network', 'neutron', 'contrail')
     NET_L23_PROVIDERS = ('ovs',)
-    NET_SEGMENT_TYPES = ('none', 'vlan', 'gre')
+    NET_SEGMENT_TYPES = ('none', 'vlan', 'MPLSoGRE', 'MPLSoUDP', 'VxLAN')
     id = Column(Integer, primary_key=True)
     mode = Column(
         Enum(*MODES, name='cluster_mode'),
@@ -116,6 +117,8 @@ class Cluster(Base):
                               backref="cluster", cascade="delete")
     changes_list = relationship("ClusterChanges", backref="cluster",
                                 cascade="delete")
+    contrail = relationship("ContrailAttributes", uselist=False,
+                              backref="cluster", cascade="delete")
     # We must keep all notifications even if cluster is removed.
     # It is because we want user to be able to see
     # the notification history so that is why we don't use
@@ -261,7 +264,7 @@ class AttributesGenerators(object):
 class Attributes(Base):
     __tablename__ = 'attributes'
     id = Column(Integer, primary_key=True)
-    cluster_id = Column(Integer, ForeignKey('clusters.id'))
+    cluster_id = Column(Integer, ForeignKey('clusters.id', ondelete="CASCADE"))
     editable = Column(JSON)
     generated = Column(JSON)
 

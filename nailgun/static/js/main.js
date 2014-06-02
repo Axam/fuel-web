@@ -23,6 +23,8 @@ requirejs.config({
         'jquery-timeout': 'js/libs/bower/jquery.timeout/js/index',
         'jquery-ui': 'js/libs/custom/jquery-ui-1.10.2.custom',
         'jquery-autoNumeric': 'js/libs/bower/autoNumeric/js/autoNumeric',
+        'jquery-validation': 'js/libs/jquery.validationEngine',
+        'jquery-validation-en': 'js/libs/jquery.validationEngine-en',
         utils: 'js/utils',
         lodash: 'js/libs/bower/lodash/js/lodash',
         backbone: 'js/libs/custom/backbone',
@@ -80,6 +82,12 @@ requirejs.config({
         },
         'jquery-autoNumeric': {
             deps: ['jquery']
+        },
+        'jquery-validation': {
+            deps: ['jquery', 'jquery-validation-en']
+        },
+        'jquery-validation-en': {
+            deps: ['jquery']
         }
     }
 });
@@ -97,6 +105,7 @@ require([
     'jquery-timeout',
     'jquery-ui',
     'jquery-autoNumeric',
+    'jquery-validation',
     'styles',
     'app'
 ], function() {

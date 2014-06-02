@@ -257,3 +257,15 @@ class NeutronNetworkConfigurationVerifyHandler(
 
     validator = NeutronNetworkConfigurationValidator
     provider = "neutron"
+
+class ContrailNetworkConfigurationHandler(NovaNetworkConfigurationHandler):
+    """Neutron Network configuration handler
+    """
+
+    validator = NovaNetworkConfigurationValidator
+    provider = "contrail"
+
+
+class ContrailNetworkConfigurationVerifyHandler(
+        NovaNetworkConfigurationVerifyHandler):
+    pass

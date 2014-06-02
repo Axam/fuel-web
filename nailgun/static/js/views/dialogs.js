@@ -419,13 +419,21 @@ function(require, utils, models, simpleMessageTemplate, createClusterWizardTempl
         beforeClusterCreation: function(cluster) {
             if (this.manager == 'nova-network') {
                 cluster.set({net_provider: 'nova_network'});
-            } else {
+            } else if (manager == 'neutron-gre') {
+                  cluster.set({net_provider: 'neutron'});
+                cluster.set({net_segment_type: 'gre'});
+            } else if (manager == 'neutron-vlan') {
                 cluster.set({net_provider: 'neutron'});
-                if (this.manager == 'neutron-gre') {
-                    cluster.set({net_segment_type: 'gre'});
-                } else if (this.manager == 'neutron-vlan') {
-                    cluster.set({net_segment_type: 'vlan'});
-                }
+                cluster.set({net_segment_type: 'vlan'});
+            } else if (manager == 'contrail-gre') {
+                cluster.set({net_provider: 'contrail'});
+                cluster.set({net_segment_type: 'MPLSoGRE'});
+            } else if (manager == 'contrail-udp') {
+                cluster.set({net_provider: 'contrail'});
+                cluster.set({net_segment_type: 'MPLSoUDP'});
+            } else if (manager == 'contrail-vxlan') {
+                cluster.set({net_provider: 'contrail'});
+                cluster.set({net_segment_type: 'VxLAN'});
             }
             return $.Deferred().resolve();
         },
@@ -636,7 +644,8 @@ function(require, utils, models, simpleMessageTemplate, createClusterWizardTempl
         render: function() {
             this.constructor.__super__.render.call(this, {
                 cluster: this.model,
-                size: this.model.get('mode') == 'ha_compact' ? 3 : 1
+                size: this.model.get('mode') == 'ha_compact' ? 3 : 1,
+                sdn_contrail_size: this.model.get('mode') == 'ha_compact' ? 2 : 1
             });
             return this;
         }

@@ -36,6 +36,7 @@ from nailgun.db.sqlalchemy.models import Attributes
 from nailgun.db.sqlalchemy.models import Cluster
 from nailgun.db.sqlalchemy.models import Node
 from nailgun.db.sqlalchemy.models import Release
+from nailgun.db.sqlalchemy.models import ContrailAttributes
 from nailgun.errors import errors
 from nailgun.logger import logger
 from nailgun.task.manager import ApplyChangesTaskManager
@@ -107,6 +108,7 @@ class ClusterHandler(BaseHandler):
                     network_manager.assign_networks_by_default(node)
             else:
                 setattr(cluster, key, value)
+
         db().commit()
         return self.render(cluster)
 
@@ -180,6 +182,14 @@ class ClusterCollectionHandler(BaseHandler):
         )
         attributes.generate_fields()
 
+        contrail = ContrailAttributes(
+                        editable={'as_number' : 64512,
+                                  'wan_gateways': []},
+                        cluster=cluster
+        )
+        db().add(contrail)
+        db().commit()
+
         netmanager = cluster.network_manager
 
         try:
@@ -189,6 +199,7 @@ class ClusterCollectionHandler(BaseHandler):
 
             cluster.add_pending_changes("attributes")
             cluster.add_pending_changes("networks")
+            cluster.add_pending_changes("contrail_attributes")
 
             if 'nodes' in data and data['nodes']:
                 nodes = db().query(Node).filter(
@@ -248,6 +259,8 @@ class ClusterChangesHandler(BaseHandler):
             net_serializer = NovaNetworkConfigurationSerializer
         elif cluster.net_provider == 'neutron':
             net_serializer = NeutronNetworkConfigurationSerializer
+        elif cluster.net_provider == 'contrail':
+            net_serializer = NovaNetworkConfigurationSerializer
 
         try:
             network_info = net_serializer.serialize_for_cluster(cluster)

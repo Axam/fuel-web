@@ -1,6 +1,7 @@
 @import 'fonticon.css';
 @import 'bootstrap.css';
 @import 'retina.less';
+@import 'validationEngine.jquery.css';
 
 // Basis
 // -------------------------
@@ -373,6 +374,17 @@ h6.page-title {
   width: 67px;
   height: 34px;
   background: url(../img/mirantis-logo-small2.png) no-repeat top left;
+  margin: 8px 0px 0px 10px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.juniper-footer-logo {
+  display: block;
+  float: left;
+  width: 108px;
+  height: 34px;
+  background: url(../img/juniper_logo.png) no-repeat top left;
   margin: 8px 0px 0px 10px;
   overflow: hidden;
   cursor: pointer;
@@ -1071,6 +1083,10 @@ label.error {
 .tab-healthcheck-normal {.at2x('../img/tab_icons.png', 0px, -180px, 90px);}
 .tab-healthcheck-good   {.at2x('../img/tab_icons.png', -30px, -180px, 90px);}
 .tab-healthcheck-bad    {.at2x('../img/tab_icons.png', -60px, -180px, 90px);}
+
+.tab-contrail-normal {background: url(../img/tab_icons.png) no-repeat   0px -210px;}
+.tab-contrail-good   {background: url(../img/tab_icons.png) no-repeat -30px -210px;}
+.tab-contrail-bad    {background: url(../img/tab_icons.png) no-repeat -60px -210px;}
 
 // Global alerts
 // -------------------------
@@ -3810,4 +3826,8 @@ i.btn-cluster-details {
   width: 760px;
   margin-left: -380px;
   min-height: 485px;
+}
+
+.inlineinput {
+  display: inline-block;
 }

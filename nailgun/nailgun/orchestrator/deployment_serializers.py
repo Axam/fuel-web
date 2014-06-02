@@ -160,8 +160,11 @@ class DeploymentMultinodeSerializer(object):
         for n in cls.by_role(nodes, 'controller'):
             n['priority'] = prior.next
 
+        for n in cls.by_role(nodes, 'sdn-contrail-controller'):
+            n['priority'] = prior.next
+
         other_nodes_prior = prior.next
-        for n in cls.not_roles(nodes, 'controller'):
+        for n in cls.not_roles(nodes, ['controller', 'sdn-contrail-controller']):
             n['priority'] = other_nodes_prior
 
     @classmethod
@@ -323,13 +326,18 @@ class DeploymentHASerializer(DeploymentMultinodeSerializer):
         for n in cls.by_role(nodes, 'controller'):
             n['priority'] = prior.next
 
+        # Contrail nodes
+        for n in cls.by_role(nodes, 'sdn-contrail-controller'):
+            n['priority'] = prior.next
+
         other_nodes_prior = prior.next
         for n in cls.not_roles(nodes, ['primary-swift-proxy',
                                        'swift-proxy',
                                        'storage',
                                        'primary-controller',
                                        'controller',
-                                       'quantum']):
+                                       'quantum',
+                                       'sdn-contrail-controller']):
             n['priority'] = other_nodes_prior
 
 
@@ -375,8 +383,10 @@ class NetworkDeploymentSerializer(object):
     def get_net_provider_serializer(cls, cluster):
         if cluster.net_provider == 'nova_network':
             return NovaNetworkDeploymentSerializer
-        else:
+        elif cluster.net_provider == 'neutron':
             return NeutronNetworkDeploymentSerializer
+        elif cluster.net_provider == 'contrail':
+            return ContrailNetworkDeploymentSerializer
 
     @classmethod
     def network_ranges(cls, cluster):
@@ -446,7 +456,7 @@ class NovaNetworkDeploymentSerializer(NetworkDeploymentSerializer):
     def network_provider_node_attrs(cls, cluster, node):
         network_data = node.network_data
         interfaces = cls.configure_interfaces(node)
-        cls.__add_hw_interfaces(interfaces, node.meta['interfaces'])
+        cls._add_hw_interfaces(interfaces, node.meta['interfaces'])
 
         # Interfaces assingment
         attrs = {'network_data': interfaces}
@@ -502,7 +512,7 @@ class NovaNetworkDeploymentSerializer(NetworkDeploymentSerializer):
             if network_name == 'floating':
                 continue
 
-            name = cls.__make_interface_name(network.get('dev'),
+            name = cls._make_interface_name(network.get('dev'),
                                              network.get('vlan'))
 
             interfaces.setdefault(name, {'interface': name, 'ipaddr': []})
@@ -526,7 +536,7 @@ class NovaNetworkDeploymentSerializer(NetworkDeploymentSerializer):
         return interfaces
 
     @classmethod
-    def __make_interface_name(cls, name, vlan):
+    def _make_interface_name(cls, name, vlan):
         """Make interface name
         """
         if name and vlan:
@@ -534,7 +544,7 @@ class NovaNetworkDeploymentSerializer(NetworkDeploymentSerializer):
         return name
 
     @classmethod
-    def __add_hw_interfaces(cls, interfaces, hw_interfaces):
+    def _add_hw_interfaces(cls, interfaces, hw_interfaces):
         """Add interfaces which not represents in
         interfaces list but they are represented on node
         """
@@ -552,7 +562,7 @@ class NovaNetworkDeploymentSerializer(NetworkDeploymentSerializer):
         interfaces = {}
         for network in network_data:
             interfaces['%s_interface' % network['name']] = \
-                cls.__make_interface_name(
+                cls._make_interface_name(
                     network.get('dev'),
                     network.get('vlan'))
 
@@ -847,6 +857,135 @@ class NeutronNetworkDeploymentSerializer(NetworkDeploymentSerializer):
 
         return iface_attrs
 
+class ContrailNetworkDeploymentSerializer(NovaNetworkDeploymentSerializer):
+
+    @classmethod
+    def network_cluster_attrs(cls, cluster):
+        return {'dns_nameservers': cluster.dns_nameservers,
+                'contrail' : True,
+                'quantum_settings' : cls.contrail_cluster_settings(cluster)}
+
+    @classmethod
+    def network_node_attrs(cls, cluster, node):
+        network_data = node.network_data
+        interfaces = cls.configure_interfaces(node)
+        cls._add_hw_interfaces(interfaces, node.meta['interfaces'])
+
+        # Interfaces assingment
+        attrs = {'network_data': interfaces}
+        attrs.update(cls.interfaces_list(network_data))
+
+        if cluster.net_manager == 'VlanManager':
+            attrs.update(cls.add_vlan_interfaces(node))
+
+
+        attrs['quantum_settings'] = {'contrail' : cls.contrail_node_settings(node)}
+        return attrs
+
+    @classmethod
+    def contrail_node_settings(cls, node):
+        settings = {}
+        for role in node.all_roles:
+            net = cls._get_network(node.network_data, 'management')
+            settings['host_ip'] = cls._get_ip(net)
+            if role == 'compute':
+                net = cls._get_network(node.network_data, 'private')
+                settings['vrouter_ip']  = cls._get_ip(net)
+                settings['vrouter_dec_mask'] = net['netmask'] # Private network mask as a dec e.g. 255.255.255.0  (interface fix for POC)
+                settings['vrouter_prefix'] = net['ip'].split('/')[1] # Private network mask as a prefix e.g. /24  (interface fix for POC)
+                settings['vrouter_ifname'] = cls._make_interface_name(net.get('dev'),
+                                                                      net.get('vlan'))
+                settings['vrouter_hwaddr'] = filter(lambda x: x.name == net['dev'], node.interfaces)[0].mac # from eth2 (fix for POC)
+            elif role == 'sdn-contrail-controller':
+                management_net = cls._get_network(node.network_data, 'management')
+                settings['cassandra_ip'] = cls._get_ip(management_net)
+                settings['zookeeper_ip'] = cls._get_ip(management_net)
+                settings['ifmap_ip'] = cls._get_ip(management_net)
+                settings['host_ip_mgmt'] = cls._get_ip(management_net)
+                private_net = cls._get_network(node.network_data, 'private')
+                settings['host_ip_prv'] = cls._get_ip(private_net)
+        return settings
+
+    @classmethod
+    def contrail_cluster_settings(cls, cluster):
+        settings = {}
+        sdn_controller_nodess = filter(lambda x: 'sdn-contrail-controller' in x.all_roles, cluster.nodes)
+        net = cls._get_network(sdn_controller_nodess[0].network_data, 'management')
+        config_node_ip = cls._get_ip(net)
+
+        settings['discovery_server_ip'] = config_node_ip #   Config Node IP in Private network (eth2 IP)
+        settings['api_ip'] = config_node_ip #Config Node IP in Private network (eth2 IP)
+        settings['database_ip'] = config_node_ip
+
+        settings['control_instances_number'] = len(sdn_controller_nodess) # - Number of Contrail Control Nodes
+        settings['sdn_controllers'] = [cls._get_ip(cls._get_network(controller.network_data, 'management'))
+                                            for controller in sdn_controller_nodess]
+
+        net = cls._get_network(sdn_controller_nodess[0].network_data, 'management')
+        settings['collector_ip'] = cls._get_ip(net)# Analytics Node IP in Private network (eth2 IP)
+
+        settings['dns'] = cluster.dns_nameservers # dns servers  network tab
+
+        os_controllers = filter(lambda x: 'controller' in x.all_roles, cluster.nodes)
+        controller_net = cls._get_network(os_controllers[0].network_data, 'management')
+        settings['openstack_controller_ip'] = cls._get_ip(controller_net) # OpenStack Controller IP (management network),
+        settings['quantum_ip'] = cls._get_ip(controller_net)
+        settings['keystone_ip'] = cls._get_ip(controller_net)
+        settings['glance_ip'] = cls._get_ip(controller_net)
+        settings['nova_ip'] = cls._get_ip(controller_net)
+
+        cinder_nodes = filter(lambda x: 'cinder' in x.all_roles, cluster.nodes)
+        if cinder_nodes:
+            cinder_net = cls._get_network(cinder_nodes[0].network_data, 'management')
+            settings['cinder_ip'] = cls._get_ip(cinder_net)
+        else:
+            #XXX maybe cinder is required??
+            settings['cinder_ip'] = cls._get_ip(controller_net)
+
+        settings['admin_token'] = 'tbd' # keystone admin token??, TBD
+        settings['encapsulation'] = cluster.net_segment_type
+
+        settings['hosts_ip_list_mgmt'] = [cls._get_ip(cls._get_network(controller.network_data, 'management'))
+                                            for controller in sdn_controller_nodess]
+        settings['hosts_ip_list_prv'] = [cls._get_ip(cls._get_network(controller.network_data, 'private'))
+                                            for controller in sdn_controller_nodess]
+
+        settings['sdn_controllers_node_names'] = [TaskHelper.make_slave_fqdn(controller.id) for
+                                                      controller in sdn_controller_nodess]
+        for controller in sdn_controller_nodess:
+            controller_ip = cls._get_ip(cls._get_network(controller.network_data, 'management'))
+            controller_name = 'sdn_controller_{0}'.format(TaskHelper.make_slave_fqdn(controller.id))
+            settings[controller_name] = controller_ip
+
+        settings['wan_gateways'] = [wan['hostname'] for wan in cluster.contrail.editable['wan_gateways']]
+        for wan in cluster.contrail.editable['wan_gateways']:
+            settings['wan_gateways_{0}'.format(wan['hostname'])] = wan['ip']
+        settings['as_number'] = int(cluster.contrail.editable['as_number'])
+        return {'contrail' : settings,
+                'keystone' : {
+                    'auth_url': 'http://{0}:5000/v2.0'.format(cls._get_ip(controller_net)), #move to external ruby
+                    'admin_tenant_name': 'services', #move to external ruby
+                    'admin_user': 'quantum', #move to external ruby
+                    'auth_region': 'RegionOne', #move to external ruby
+                    'admin_email': 'admin@admin.com' #move to external ruby
+                    },
+                'server' : {
+                    'api_url': 'http://{0}:9696'.format(cls._get_ip(controller_net)), #move to external ruby
+                    'bind_port': 9696
+                    },
+               }
+
+    @classmethod
+    def _get_network(cls, networks, name):
+        for net in networks:
+            if net['name'] == name:
+                return net
+
+    @classmethod
+    def _get_ip(cls, net):
+        ip = net['ip']
+        ip = ip.split('/')[0]
+        return ip
 
 def serialize(cluster, nodes):
     """Serialization depends on deployment mode

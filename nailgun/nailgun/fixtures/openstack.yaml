@@ -12,21 +12,74 @@
       - controller
       - compute
       - cinder
+      - sdn-contrail-controller
     roles_metadata:
       controller:
         name: "Controller"
         description: "The controller initiates orchestration activities and provides an external API.  Other components like Glance (image storage), Keystone (identity management), Horizon (OpenStack dashboard) and Nova-Scheduler are installed on the controller as well."
         conflicts:
           - compute
+          - sdn-contrail-controller
       compute:
         name: "Compute"
         description: "A compute node creates, manages and terminates virtual machine instances."
         conflicts:
           - controller
+          - sdn-contrail-controller
       cinder:
         name: "Storage - Cinder LVM"
         description: "Cinder LVM provides block storage over iSCSI. Block storage can be used for database storage, expandable file systems, or providing a server with access to raw block level devices."
+      sdn-contrail-controller:
+        name: "SDN Controller"
+        description: "Contrail SDN Controller node"
+        conflicts:
+          - controller
+          - compute
     networks_metadata:
+      contrail:
+        networks:
+          - name: "public"
+            cidr: "172.16.0.0/24"
+            ip_range: ["172.16.0.2", "172.16.0.126"]
+            vlan_start: 100
+            use_gateway: true
+            notation: "ip_ranges"
+            calculate_cidr: true
+            render_type: null
+            render_addr_mask: "public"
+            map_priority: 1
+            assign_vip: true
+          - name: "management"
+            cidr: "192.168.0.0/24"
+            vlan_start: 101
+            use_gateway: false
+            notation: "cidr"
+            render_type: "cidr"
+            render_addr_mask: "internal"
+            map_priority: 2
+            assign_vip: true
+          - name: "storage"
+            cidr: "192.168.1.0/24"
+            vlan_start: 102
+            use_gateway: false
+            notation: "cidr"
+            render_type: "cidr"
+            render_addr_mask: "storage"
+            map_priority: 2
+            assign_vip: false
+          - name: "private"
+            cidr: "10.0.0.0/16"
+            ip_range: ["10.0.0.2", "10.0.255.254"]
+            netmask: "255.255.0.0"
+            gateway: "10.0.0.1"
+            seg_type: "vlan"
+            vlan_start: 103
+            use_gateway: true
+            notation: "ip_ranges"
+            render_type: "ip_ranges"
+            render_addr_mask: null
+            map_priority: 2
+            assign_vip: false      
       nova_network:
         networks:
           - name: "floating"
@@ -309,6 +362,7 @@
       - compute
       - cinder
       - ceph-osd
+      - sdn-contrail-controller
     roles_metadata:
       ceph-osd:
         name: "Storage - Ceph OSD"
@@ -567,15 +621,3 @@
               - data: "kernel_lt"
                 label: "EXPERIMENTAL: Use Fedora longterm kernel"
                 description: "Install the Fedora 3.10 longterm kernel instead of the default 2.6.32 kernel. This should remove any need for VLAN Splinters workarounds as the 3.10 kernel has better support for OVS VLANs. This kernel may not work with all hardware platforms, use caution."
-- pk: 3
-  extend: *full_release
-  fields:
-    name: "Havana on Ubuntu 12.04"
-    version: "2013.2.2"
-    operating_system: "Ubuntu"
-    description: "This option will install the OpenStack Havana packages using Ubuntu as a base operating system. With high availability features built in, you are getting a robust, enterprise-grade OpenStack deployment."
-    attributes_metadata:
-      generated:
-        cobbler:
-          profile:
-            generator_arg: "ubuntu_1204_x86_64"
