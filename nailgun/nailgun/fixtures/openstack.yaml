@@ -69,17 +69,14 @@
             assign_vip: false
           - name: "private"
             cidr: "10.0.0.0/16"
-            ip_range: ["10.0.0.2", "10.0.255.254"]
-            netmask: "255.255.0.0"
-            gateway: "10.0.0.1"
-            seg_type: "vlan"
+            network_size: 65536
             vlan_start: 103
             use_gateway: true
-            notation: "ip_ranges"
-            render_type: "ip_ranges"
+            notation: "cidr"
+            render_type: "cidr"
             render_addr_mask: null
             map_priority: 2
-            assign_vip: false      
+            assign_vip: false
       nova_network:
         networks:
           - name: "floating"
