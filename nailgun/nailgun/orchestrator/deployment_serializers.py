@@ -209,8 +209,10 @@ class DeploymentMultinodeSerializer(object):
     def get_net_provider_serializer(cls, cluster):
         if cluster.net_provider == 'nova_network':
             return NovaNetworkDeploymentSerializer
-        else:
+        elif cluster.net_provider == 'neutron':
             return NeutronNetworkDeploymentSerializer
+        elif cluster.net_provider == 'contrail':
+            return ContrailNetworkDeploymentSerializer
 
 
 class DeploymentHASerializer(DeploymentMultinodeSerializer):
