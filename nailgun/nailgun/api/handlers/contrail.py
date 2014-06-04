@@ -20,8 +20,8 @@ Handlers dealing with clusters
 
 import web
 
+from nailgun.api.handlers.base import BaseHandler
 from nailgun.api.handlers.base import content_json
-from nailgun.api.handlers.base import JSONHandler
 from nailgun.api.validators.cluster import AttributesValidator
 from nailgun.db import db
 from nailgun.db.sqlalchemy.models import Cluster
@@ -29,7 +29,7 @@ from nailgun.db.sqlalchemy.models import ContrailAttributes
 from nailgun.logger import logger
 
 
-class ContrailAttributesHandler(JSONHandler):
+class ContrailAttributesHandler(BaseHandler):
     """Cluster contrail attributes handler
     """
 
@@ -80,7 +80,7 @@ class ContrailAttributesHandler(JSONHandler):
         return {"editable": cluster.contrail.editable}
 
 
-class ContrailAttributesDefaultsHandler(JSONHandler):
+class ContrailAttributesDefaultsHandler(BaseHandler):
     """Cluster default attributes handler
     """
 

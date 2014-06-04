@@ -419,19 +419,19 @@ function(require, utils, models, simpleMessageTemplate, createClusterWizardTempl
         beforeClusterCreation: function(cluster) {
             if (this.manager == 'nova-network') {
                 cluster.set({net_provider: 'nova_network'});
-            } else if (manager == 'neutron-gre') {
+            } else if (this.manager == 'neutron-gre') {
                   cluster.set({net_provider: 'neutron'});
                 cluster.set({net_segment_type: 'gre'});
-            } else if (manager == 'neutron-vlan') {
+            } else if (this.manager == 'neutron-vlan') {
                 cluster.set({net_provider: 'neutron'});
                 cluster.set({net_segment_type: 'vlan'});
-            } else if (manager == 'contrail-gre') {
+            } else if (this.manager == 'contrail-gre') {
                 cluster.set({net_provider: 'contrail'});
                 cluster.set({net_segment_type: 'MPLSoGRE'});
-            } else if (manager == 'contrail-udp') {
+            } else if (this.manager == 'contrail-udp') {
                 cluster.set({net_provider: 'contrail'});
                 cluster.set({net_segment_type: 'MPLSoUDP'});
-            } else if (manager == 'contrail-vxlan') {
+            } else if (this.manager == 'contrail-vxlan') {
                 cluster.set({net_provider: 'contrail'});
                 cluster.set({net_segment_type: 'VxLAN'});
             }
