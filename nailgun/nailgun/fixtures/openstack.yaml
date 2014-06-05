@@ -67,7 +67,7 @@
             render_addr_mask: "storage"
             map_priority: 2
             assign_vip: false
-          - name: "private"
+          - name: "fixed"
             cidr: "10.0.0.0/16"
             network_size: 65536
             vlan_start: 103
