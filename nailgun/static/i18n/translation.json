@@ -208,6 +208,9 @@
                 "settings_tab": {
                     "title": "OpenStack Settings"
                 },
+                "contrail_settings_tab": {
+                    "title": "SDN Contrail Settings"
+                },
                 "actions_tab": {
                     "title": "Actions",
                     "rename_environment": "Rename Environment",
