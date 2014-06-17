@@ -131,7 +131,7 @@
                 "tabs": {
                     "nodes": "Nodes",
                     "network": "Networks",
-                    "contrail": "SDN Contrail"
+                    "contrail": "SDN Contrail",
                     "settings": "Settings",
                     "logs": "Logs",
                     "healthcheck": "Health Check",
