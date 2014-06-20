@@ -862,13 +862,13 @@ class NeutronNetworkDeploymentSerializer(NetworkDeploymentSerializer):
 class ContrailNetworkDeploymentSerializer(NovaNetworkDeploymentSerializer):
 
     @classmethod
-    def network_cluster_attrs(cls, cluster):
+    def network_provider_cluster_attrs(cls, cluster):
         return {'dns_nameservers': cluster.dns_nameservers,
                 'contrail' : True,
                 'quantum_settings' : cls.contrail_cluster_settings(cluster)}
 
     @classmethod
-    def network_node_attrs(cls, cluster, node):
+    def network_provider_node_attrs(cls, cluster, node):
         network_data = node.network_data
         interfaces = cls.configure_interfaces(node)
         cls._add_hw_interfaces(interfaces, node.meta['interfaces'])
