@@ -67,7 +67,7 @@
             render_addr_mask: "storage"
             map_priority: 2
             assign_vip: false
-          - name: "fixed"
+          - name: "public"
             cidr: "10.0.0.0/16"
             network_size: 65536
             vlan_start: 103
@@ -365,47 +365,6 @@
         name: "Storage - Ceph OSD"
         description: "Ceph storage can be configured to provide storage for block volumes (Cinder), images (Glance) and ephemeral instance storage (Nova). It can also provide object storage through the S3 and Swift API (See settings to enable each)."
     networks_metadata:
-      contrail:
-        networks:
-          - name: "public"
-            cidr: "172.16.0.0/24"
-            ip_range: ["172.16.0.2", "172.16.0.126"]
-            vlan_start: 100
-            use_gateway: true
-            notation: "ip_ranges"
-            calculate_cidr: true
-            render_type: null
-            render_addr_mask: "public"
-            map_priority: 1
-            assign_vip: true
-          - name: "management"
-            cidr: "192.168.0.0/24"
-            vlan_start: 101
-            use_gateway: false
-            notation: "cidr"
-            render_type: "cidr"
-            render_addr_mask: "internal"
-            map_priority: 2
-            assign_vip: true
-          - name: "storage"
-            cidr: "192.168.1.0/24"
-            vlan_start: 102
-            use_gateway: false
-            notation: "cidr"
-            render_type: "cidr"
-            render_addr_mask: "storage"
-            map_priority: 2
-            assign_vip: false
-          - name: "private"
-            cidr: "10.0.0.0/16"
-            network_size: 65536
-            vlan_start: 103
-            use_gateway: true
-            notation: "cidr"
-            render_type: "cidr"
-            render_addr_mask: null
-            map_priority: 2
-            assign_vip: false
       neutron:
         networks:
           - name: "public"
