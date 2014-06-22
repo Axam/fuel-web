@@ -891,7 +891,7 @@ class ContrailNetworkDeploymentSerializer(NovaNetworkDeploymentSerializer):
             net = cls._get_network(node.network_data, 'management')
             settings['host_ip'] = cls._get_ip(net)
             if role == 'compute':
-                net = cls._get_network(node.network_data, 'private')
+                net = cls._get_network(node.network_data, 'fixed')
                 settings['vrouter_ip']  = cls._get_ip(net)
                 settings['vrouter_dec_mask'] = net['netmask'] # Private network mask as a dec e.g. 255.255.255.0  (interface fix for POC)
                 settings['vrouter_prefix'] = net['ip'].split('/')[1] # Private network mask as a prefix e.g. /24  (interface fix for POC)
@@ -904,7 +904,7 @@ class ContrailNetworkDeploymentSerializer(NovaNetworkDeploymentSerializer):
                 settings['zookeeper_ip'] = cls._get_ip(management_net)
                 settings['ifmap_ip'] = cls._get_ip(management_net)
                 settings['host_ip_mgmt'] = cls._get_ip(management_net)
-                private_net = cls._get_network(node.network_data, 'private')
+                private_net = cls._get_network(node.network_data, 'fixed')
                 settings['host_ip_prv'] = cls._get_ip(private_net)
         return settings
 
@@ -949,7 +949,7 @@ class ContrailNetworkDeploymentSerializer(NovaNetworkDeploymentSerializer):
 
         settings['hosts_ip_list_mgmt'] = [cls._get_ip(cls._get_network(controller.network_data, 'management'))
                                             for controller in sdn_controller_nodess]
-        settings['hosts_ip_list_prv'] = [cls._get_ip(cls._get_network(controller.network_data, 'private'))
+        settings['hosts_ip_list_prv'] = [cls._get_ip(cls._get_network(controller.network_data, 'fixed'))
                                             for controller in sdn_controller_nodess]
 
         settings['sdn_controllers_node_names'] = [TaskHelper.make_slave_fqdn(controller.id) for
