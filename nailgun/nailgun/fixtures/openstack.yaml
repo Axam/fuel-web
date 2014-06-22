@@ -70,10 +70,12 @@
           - name: "fixed"
             cidr: "10.0.0.0/16"
             network_size: 65536
+            ip_range: ["10.0.0.2", "10.0.255.254"]
             vlan_start: 103
             use_gateway: true
-            notation: "cidr"
-            render_type: "cidr"
+            gateway: "10.0.0.1"
+            notation: "ip_ranges"
+            render_type: null
             render_addr_mask: null
             map_priority: 2
             assign_vip: false
@@ -81,6 +83,7 @@
         networks:
           - name: "floating"
             cidr: "172.16.0.0/24"
+            network_size: 256
             ip_range: ["172.16.0.128", "172.16.0.254"]
             vlan_start: null
             use_gateway: false
