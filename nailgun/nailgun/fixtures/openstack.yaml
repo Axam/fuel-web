@@ -67,7 +67,7 @@
             render_addr_mask: "storage"
             map_priority: 2
             assign_vip: false
-          - name: "fixed"
+          - name: "private"
             cidr: "10.0.0.0/16"
             network_size: 65536
             ip_range: ["10.0.0.2", "10.0.255.254"]
