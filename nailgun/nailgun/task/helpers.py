@@ -470,7 +470,7 @@ class TaskHelper(object):
             netmanager.assign_ips(nodes_ids, 'public')
             netmanager.assign_ips(nodes_ids, 'storage')
 #            if cluster.net_provider == 'contrail':
-           netmanager.assign_ips(nodes_ids, 'private')
+            netmanager.assign_ips(nodes_ids, 'private')
 
             for node in nodes:
                 netmanager.assign_admin_ips(node.id)
