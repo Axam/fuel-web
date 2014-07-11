@@ -34,15 +34,14 @@
 
   <!-- Verification control -->
   <hr>
-  <div class="row verification-control"></div>
+<!--  <div class="row verification-control"></div> -->
 
   <!-- Buttons -->
   <div class="row">
     <div class="page-control-box">
       <div class="page-control-button-placeholder">
-        <button data-i18n="cluster_page.network_tab.verify_networks_button" class="btn verify-networks-btn" <%= verificationLocked ? 'disabled' : '' %>></button>
-        <button data-i18n="common.cancel_changes_button" class="btn btn-revert-changes" <%= locked || !hasChanges? 'disabled' : '' %>></button>
-        <button data-i18n="common.save_settings_button" class="btn btn-success apply-btn" <%= locked || !hasChanges ? 'disabled' : '' %>></button>
+        <button data-i18n="common.cancel_changes_button" class="btn btn-revert-changes"></button>
+        <button data-i18n="common.save_settings_button" class="btn btn-success apply-btn"></button>
       </div>
     </div>
   </div>
