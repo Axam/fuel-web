@@ -456,7 +456,7 @@ class CheckBeforeDeploymentTask(object):
             raise errors.NotEnoughContrailControllers(
                 "Not SDN Contrail controller, %s mode requires 1 "
                 "controller" % (cluster_mode))
-        elif cluster_mode == 'ha_compact' and controllers_count < 2:
+        elif cluster_mode == 'ha_compact' and controllers_count != 2:
             raise errors.NotEnoughContrailControllers(
                 "Not enough SDN Contrail controllers, %s mode requires 2 "
                 "controllers" % (cluster_mode))
