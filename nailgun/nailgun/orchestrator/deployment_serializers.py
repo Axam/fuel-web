@@ -329,8 +329,9 @@ class DeploymentHASerializer(DeploymentMultinodeSerializer):
             n['priority'] = prior.next
 
         # Contrail nodes
+        contrail_prior = prior.next
         for n in cls.by_role(nodes, 'sdn-contrail-controller'):
-            n['priority'] = prior.next
+            n['priority'] = contrail_prior
 
         other_nodes_prior = prior.next
         for n in cls.not_roles(nodes, ['primary-swift-proxy',
