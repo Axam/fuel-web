@@ -892,7 +892,7 @@ class ContrailNetworkDeploymentSerializer(NovaNetworkDeploymentSerializer):
             net = cls._get_network(node.network_data, 'management')
             settings['host_ip'] = cls._get_ip(net)
             if role == 'compute':
-                net = cls._get_network(node.network_data, 'private')
+                net = cls._get_network(node.network_data, 'management')
                 settings['vrouter_ip']  = cls._get_ip(net)
                 settings['vrouter_dec_mask'] = net['netmask'] # Private network mask as a dec e.g. 255.255.255.0  (interface fix for POC)
                 settings['vrouter_prefix'] = net['ip'].split('/')[1] # Private network mask as a prefix e.g. /24  (interface fix for POC)
